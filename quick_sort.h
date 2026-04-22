@@ -1,1 +1,1 @@
-// Placeholder for quicksort declarations.
+void quick_sort(int arr[], int left, int right);

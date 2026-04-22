@@ -1,4 +1,3 @@
-// Placeholder for merge sort declarations.
 #ifndef MERGE_SORT_H
 #define MERGE_SORT_H
 

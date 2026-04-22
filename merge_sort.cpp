@@ -1,7 +1,7 @@
 #include "merge_sort.h"
 #include <vector>
 
-void MergeSort::merge(int array[], int left, int mid, int right) {
+void MergeSort::merge(int array[], int left, int mid, int right, bool ascending) {
     int left_size = mid - left + 1;
     int right_size = right - mid;
 
@@ -21,7 +21,8 @@ void MergeSort::merge(int array[], int left, int mid, int right) {
 
 
     while (i < left_size && j < right_size) {
-        if (L[i] <= R[j]) {
+        bool take_left = ascending ? (L[i] <= R[j]) : (L[i] >= R[j]);
+        if (take_left) {
             array[k] = L[i];
             i++;
         } else {
@@ -43,11 +44,11 @@ void MergeSort::merge(int array[], int left, int mid, int right) {
     }
 
 }
-void MergeSort::merge_sort(int array[], int left, int right) {
+void MergeSort::merge_sort(int array[], int left, int right, bool ascending) {
     if (left >= right) return;
     int mid = (left + right) / 2;
-    merge_sort(array, left, mid);
-    merge_sort(array, mid + 1, right);
-    merge(array, left, mid, right);
+    merge_sort(array, left, mid, ascending);
+    merge_sort(array, mid + 1, right, ascending);
+    merge(array, left, mid, right, ascending);
 
 }

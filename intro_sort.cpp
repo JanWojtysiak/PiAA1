@@ -17,12 +17,12 @@ static int floor_log2(int n) {
 }
 
 // --- Sortowanie przez wstawianie ---
-static void insertion_sort(int arr[], int left, int right) {
+static void insertion_sort(int arr[], int left, int right, bool ascending) {
     for (int i = left + 1; i <= right; i++) {
         int key = arr[i];
         int j = i - 1;
         // Przesuwamy w prawo elementy większe od key.
-        while (j >= left && arr[j] > key) {
+        while (j >= left && (ascending ? (arr[j] > key) : (arr[j] < key))) {
             arr[j + 1] = arr[j];
             j--;
         }
@@ -30,14 +30,26 @@ static void insertion_sort(int arr[], int left, int right) {
     }
 }
 
-static void heapify(int arr[], int n, int i, int offset) {
+static void heapify(int arr[], int n, int i, int offset, bool ascending) {
     while (true) {
         int largest = i;
         int l = 2 * i + 1;
         int r = 2 * i + 2;
 
-        if (l < n && arr[offset + l] > arr[offset + largest]) largest = l;
-        if (r < n && arr[offset + r] > arr[offset + largest]) largest = r;
+        if (l < n) {
+            bool left_better = ascending
+                ? (arr[offset + l] > arr[offset + largest])
+                : (arr[offset + l] < arr[offset + largest]);
+            if (left_better) largest = l;
+        }
+
+        if (r < n) {
+            bool right_better = ascending
+                ? (arr[offset + r] > arr[offset + largest])
+                : (arr[offset + r] < arr[offset + largest]);
+            if (right_better) largest = r;
+        }
+
         if (largest == i) return;
 
         std::swap(arr[offset + i], arr[offset + largest]);
@@ -47,24 +59,24 @@ static void heapify(int arr[], int n, int i, int offset) {
 
 // --- Heapsort ---
 // Gwarantuje złożoność O(n log n) niezależnie od danych.
-static void heap_sort(int arr[], int left, int right) {
+static void heap_sort(int arr[], int left, int right, bool ascending) {
     int n = right - left + 1;
     for (int i = n / 2 - 1; i >= 0; i--) {
-        heapify(arr, n, i, left);
+        heapify(arr, n, i, left, ascending);
     }
     for (int i = n - 1; i > 0; i--) {
         std::swap(arr[left], arr[left + i]);
-        heapify(arr, i, 0, left);
+        heapify(arr, i, 0, left, ascending);
     }
 }
 
 // ---  introsort ---
 
-static void intro_sort_util(int arr[], int left, int right, int depth_limit) {
+static void intro_sort_util(int arr[], int left, int right, int depth_limit, bool ascending) {
     while (right - left + 1 >= INSERTION_THRESHOLD) {
         // Za głęboka rekurencja -> przełączamy się na heapsort.
         if (depth_limit == 0) {
-            heap_sort(arr, left, right);
+            heap_sort(arr, left, right, ascending);
             return;
         }
         depth_limit--;
@@ -72,8 +84,13 @@ static void intro_sort_util(int arr[], int left, int right, int depth_limit) {
         int j = right;
         int pivot = arr[(left + right) / 2];
         while (i <= j) {
-            while (arr[i] < pivot) i++;
-            while (arr[j] > pivot) j--;
+            if (ascending) {
+                while (arr[i] < pivot) i++;
+                while (arr[j] > pivot) j--;
+            } else {
+                while (arr[i] > pivot) i++;
+                while (arr[j] < pivot) j--;
+            }
             if (i <= j) {
                 std::swap(arr[i], arr[j]);
                 i++;
@@ -82,21 +99,21 @@ static void intro_sort_util(int arr[], int left, int right, int depth_limit) {
         }
 
         if (j - left < right - i) {
-            if (left < j) intro_sort_util(arr, left, j, depth_limit);
+            if (left < j) intro_sort_util(arr, left, j, depth_limit, ascending);
             left = i;
         } else {
-            if (i < right) intro_sort_util(arr, i, right, depth_limit);
+            if (i < right) intro_sort_util(arr, i, right, depth_limit, ascending);
             right = j;
         }
     }
-    if (left < right) insertion_sort(arr, left, right);
+    if (left < right) insertion_sort(arr, left, right, ascending);
 }
 
-void intro_sort(int arr[], int left, int right) {
+void intro_sort(int arr[], int left, int right, bool ascending) {
     if (arr == nullptr || left >= right) return;
 
     int n = right - left + 1;
     int depth_limit = 2 * floor_log2(n);
 
-    intro_sort_util(arr, left, right, depth_limit);
+    intro_sort_util(arr, left, right, depth_limit, ascending);
 }

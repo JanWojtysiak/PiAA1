@@ -1,8 +1,5 @@
-# PiAA1 - projekt 1
+# PiAA1
 
-Minimalny szkielet projektu pod wariant na ocene `5,0`.
+Trzy sortowania: `merge_sort`, `quick_sort`, `intro_sort`.  
+Program w `main.cpp` sprawdza poprawność i mierzy czas.
 
-Algorytmy:
-- `merge sort`
-- `quicksort`
-- `introsort`
